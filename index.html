@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goals Bingo | 2025</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/gramener/assets/main/straive-favicon.svg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+
+  <div class="container-fluid">
+    <h1 class="display-1 my-4 text-center">Goals Bingo | 2025</h1>
+
+    <div class="container my-3">
+      <div id="goals"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" type="module"></script>
+  <script type="module">
+    const text = await fetch("README.md").then(r => r.text());
+    // Get all lines that start with - [.]
+    const lines = text.split("\n").filter(line => line.match(/^- \[.\]/));
+    // Extract the tags that begin with # so we have a list of goals
+    const grid = {};
+    const goals = lines.map(line => {
+      const [_, status, goal, domain, type] = line.match(/^- \[(.)\]\s+(.*?)\s+#(\w+)\s+#(\w+)/);
+      grid[domain] = grid[domain] || {};
+      grid[domain][type] = grid[domain][type] || [];
+      grid[domain][type].push({ status, goal });
+      return { status, goal, domain, type };
+    });
+    // Render the goals in a table
+    const types = ["Repeat", "Stretch", "New"];
+    document.querySelector("#goals").innerHTML = /* html */ `
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Domain</th>
+            ${types.map(type => /* html */ `<th>${type}</th>`).join("")}
+          </tr>
+        </thead>
+        <tbody>
+          ${Object.keys(grid).map(domain => /* html */ `<tr>
+            <th scope="row">${domain}</th>
+            ${types.map(type => /* html */ `
+              <td>
+                ${(grid[domain][type] ?? []).map(goal => /* html */ `
+                  <div class="goal">
+                    <span class="status">${goal.status.trim() ? "🟢" : "⚪"}</span>
+                    <span class="goal">${goal.goal}</span>
+                  </div>
+                `).join("")}
+              </td>`).join("")}
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    `
+  </script>
+</body>
+
+</html>
